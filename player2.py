@@ -1,5 +1,83 @@
 import socket
 from gameboard import BoardClass
+import tkinter as tk 
+from tkinter import messagebox
+
+class the_GUI():
+    def __init__(self):
+        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+        self.canvas_setup()
+        self.setting_server()
+        
+        self.run_program()
+    
+    def canvas_setup(self):
+        self.window = tk.Tk()
+        self.window.title("Tic-Tac-Toe")
+        self.window.geometry("400x200")
+        
+    def setting_server(self):
+        # By default, player 2 username is "Player 2"
+        server_txt = tk.Label(self.window, text="Setting up server..", font="Calibri 14 bold").pack(pady=15)
+
+        # Address Frame 
+        add_frame = tk.Frame(self.window)
+
+        # Storing entry to address variable
+        self.server_add = tk.StringVar()
+        ip_add_label = tk.Label(add_frame, text= "Address:", font="Calibri 12 bold").pack(side="left")
+        ip_add_entry = tk.Entry(add_frame, width=15, textvariable=self.server_add).pack(side="left")
+
+        add_frame.pack(pady=10)
+
+        # Port Frame
+        port_frame = tk.Frame(self.window)
+
+        # Storing entry to port variable
+        self.server_port = tk.StringVar()
+        port_label = tk.Label(port_frame, text= "Port:", font="Calibri 12 bold").pack(side="left")
+        port_entry = tk.Entry(port_frame, width=15, textvariable=self.server_port).pack(side="left")
+
+        port_frame.pack(pady=10)
+
+        # Button that tries to connect to player2 server with given address and port
+        attempt_connection = tk.Button(self.window, text="Go", command = self.set_up)
+        attempt_connection.pack()
+        
+    def set_up(self):
+        a = True
+
+        # checking if address and port are empty
+        while a:
+            if len(self.server_add.get()) != 0 and len(self.server_port.get()) != 0:
+                try:
+                    self.server_socket.bind((self.server_add.get(), int(self.server_port.get())))
+                    
+                    good = messagebox.showinfo(message="Setup Succesfully! \n Waiting for connection")
+                    print(good)
+                    
+                    a = False
+                except Exception:
+                    try_again = messagebox.askyesno(message="Failed. Try again?")
+                    if try_again:
+                        self.server_add = tk.StringVar()
+                        self.server_port = tk.IntVar()
+                        
+                        self.window.destroy()
+                        self.canvas_setup()
+                        self.setting_server()
+                    else:
+                        a = False
+                        
+                        bye = messagebox.showinfo(message="Bye.")
+                        print(bye)
+                        self.window.destroy()
+            else:
+                break
+    
+    def run_program(self):
+        self.window.mainloop()
 
 print("Setting up server..")
 a = True
